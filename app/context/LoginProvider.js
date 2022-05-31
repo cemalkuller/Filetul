@@ -1,11 +1,22 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useEffect, useState } from 'react';
+const querystring = require('querystring');
+import { REMOTE_USERNAME , REMOTE_PASSWORD } from "@env"
 
-import { jwt } from '../api/client';
+import { jwt , remote } from '../api/client';
 
 const LoginContext = createContext();
 const LoginProvider = ({ children }) => {
 
+  const setStringValue = async (key , value) => {
+    try {
+      await AsyncStorage.setItem(key, value)
+    } catch(e) {
+      // save error
+    }
+  
+    console.log('Done.')
+  }
 
  const getToken = async () => {
     setLoading(true);
@@ -17,7 +28,39 @@ const LoginProvider = ({ children }) => {
       if (res.data) {
         setProfile(res.data);
         setIsLoggedIn(true);
-        setLoading(false)
+        setLoading(false);
+
+
+
+          // Uzak sunucu Login
+          try {
+            if(userData)
+            {
+              const res = await remote.post('login', querystring.stringify({ username: REMOTE_USERNAME , password : REMOTE_PASSWORD }));
+        
+            if (res.data) {
+              if(res?.data?.Data?.access_token)
+              {
+                setStringValue('access_token', res?.data?.Data?.access_token);
+              }
+              
+           
+            }
+          
+          }
+               
+          } catch (error) {
+            setProfile({});
+            setLoading(false);
+          }
+
+
+
+
+
+
+
+
       }
       else {
         setProfile({});
@@ -36,9 +79,6 @@ const LoginProvider = ({ children }) => {
       setProfile({});
       setLoading(false);
     }
-
-
-
   }
 
   const logOut = async () => {
@@ -50,6 +90,7 @@ const LoginProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profile, setProfile] = useState({});
   const [barcode, SetBarcode] = useState("");
+  const [barcodes, SetBarcodes] = useState([]);
   const [loading, setLoading] = useState(false);
   useEffect(() => {
 
@@ -58,7 +99,7 @@ const LoginProvider = ({ children }) => {
 
   return (
     <LoginContext.Provider
-      value={{ isLoggedIn, setIsLoggedIn, profile, setProfile, barcode, SetBarcode, logOut, loading, setLoading }}
+      value={{ isLoggedIn, setIsLoggedIn, profile, setProfile, barcode, SetBarcode, logOut, loading, setLoading , barcodes, SetBarcodes }}
     >
       {children}
     </LoginContext.Provider>

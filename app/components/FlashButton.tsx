@@ -4,13 +4,14 @@ import { Colors, IconButton } from 'react-native-paper';
 
 type Props = {
   SetFlash: () => void;
+  active? : boolean
 };
 
-const FlashButton = ({ SetFlash }: Props) => (
+const FlashButton = ({ SetFlash , active }: Props) => (
   <TouchableOpacity onPress={SetFlash} style={styles.container}>
    
     <IconButton  
-     icon={"flash"}  
+     icon={active ? "volume-high" : 'volume-off'}  
      color={Colors.white}
      animated={true}
     size={40} />

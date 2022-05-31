@@ -3,6 +3,7 @@ import React from 'react';
 
 import LoginProvider from './app/context/LoginProvider';
 import MainNavigator from './app/MainNavigator';
+import Toast from 'react-native-toast-message';
 
 export default function App() { 
   return (
@@ -10,6 +11,7 @@ export default function App() {
       <NavigationContainer>
         <MainNavigator />
       </NavigationContainer>
+      <Toast />
     </LoginProvider>
   );
 }

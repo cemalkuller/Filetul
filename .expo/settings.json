@@ -5,6 +5,6 @@
   "minify": false,
   "urlRandomness": "2k-yfa",
   "https": false,
-  "scheme": null,
+  "scheme": "com.filetul.barkod",
   "devClient": false
 }
