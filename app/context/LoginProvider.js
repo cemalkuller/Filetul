@@ -24,42 +24,12 @@ const LoginProvider = ({ children }) => {
     try {
       if(userData)
       {
-      const res = await jwt(userData).get('users/me');
+      const res = await jwt(userData).get('me');
+      console.log(res);
       if (res.data) {
         setProfile(res.data);
         setIsLoggedIn(true);
         setLoading(false);
-
-
-
-          // Uzak sunucu Login
-          try {
-            if(userData)
-            {
-              const res = await remote.post('login', querystring.stringify({ username: REMOTE_USERNAME , password : REMOTE_PASSWORD }));
-        
-            if (res.data) {
-              if(res?.data?.Data?.access_token)
-              {
-                setStringValue('access_token', res?.data?.Data?.access_token);
-              }
-              
-           
-            }
-          
-          }
-               
-          } catch (error) {
-            setProfile({});
-            setLoading(false);
-          }
-
-
-
-
-
-
-
 
       }
       else {
@@ -78,6 +48,18 @@ const LoginProvider = ({ children }) => {
     } catch (error) {
       setProfile({});
       setLoading(false);
+      if(error.response)
+      {
+      console.log(error.response.data);
+      console.log(error.response.status);
+      console.log(error.response.headers);
+      } else if (error.request) {
+      // The request was made but no response was received
+      console.log(error.request);
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.log('Error', error.message);
+    }
     }
   }
 

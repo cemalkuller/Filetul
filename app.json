@@ -1,10 +1,21 @@
 {
+
+
+  
   "expo": {
     "name": "Filetül Barkod Sorgulama",
     "slug": "filetul",
-    "version": "1.0.2",
+    "version": "1.0.5",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "plugins": [ 
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Kartvizit yüklemesi için gereken galeri izni"
+        }
+      ]
+    ],
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",

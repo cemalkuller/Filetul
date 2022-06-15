@@ -5,7 +5,6 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
 
 import client from '../api/client';
-import BackButton from '../components/BackButton';
 import Background from '../components/Background';
 import Button from '../components/Button';
 import Header from '../components/Header';
@@ -24,7 +23,7 @@ const LoginScreen = ({ navigation }: Props) => {
 
   const { setIsLoggedIn, setProfile , loading, setLoading } = useLogin();
   const [userInfo, setUserInfo] = useState({
-    identifier: '',
+    email: '',
     password: '',
   });
 
@@ -32,7 +31,7 @@ const LoginScreen = ({ navigation }: Props) => {
 
   const [error, setError] = useState('');
 
-  const { identifier, password } = userInfo;
+  const { email, password } = userInfo;
 
   const handleOnChangeText = (value, fieldName) => {
     setUserInfo({ ...userInfo, [fieldName]: value });
@@ -42,9 +41,9 @@ const LoginScreen = ({ navigation }: Props) => {
     if (!isValidObjField(userInfo))
       return updateError('Required all fields!', setError);
 
-    if (!isValidEmail(identifier)) return updateError('Invalid email!', setError);
+    if (!isValidEmail(email)) return updateError('Invalid email!', setError);
 
-    if (!password.trim() || password.length < 8)
+    if (!password.trim() || password.length < 6)
       return updateError('Password is too short!', setError);
 
     return true;
@@ -69,18 +68,18 @@ const LoginScreen = ({ navigation }: Props) => {
       
       setLoading(true);
       try {
-        const res = await client.post('auth/local', { ...userInfo });
+        const res = await client.post('authenticate', { ...userInfo });
 
-        if (res.data.user) {
-          setUserInfo({ identifier: '', password: '' });
-          setProfile(res.data.user);
-          setStringValue("jwt",res.data.jwt);
+        if (res?.data?.jwtToken) {
+          setUserInfo({ email: '', password: '' });
+          setProfile(res.data);
+          setStringValue("jwt",res.data.jwtToken);
           setIsLoggedIn(true);
           setLoading(false);
         }
 
       } catch (error) {
-        console.log(error.response.data);
+        console.log(error?.response?.data?.message);
         setLoading(false);
       
 
@@ -104,8 +103,8 @@ const LoginScreen = ({ navigation }: Props) => {
         <TextInput
           label="E-Posta"
           returnKeyType="next"
-          value={identifier}
-          onChangeText={value => handleOnChangeText(value, 'identifier')}
+          value={email}
+          onChangeText={value => handleOnChangeText(value, 'email')}
           autoCapitalize="none"
           textContentType="emailAddress"
           keyboardType="email-address"

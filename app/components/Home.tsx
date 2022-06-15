@@ -23,7 +23,7 @@ const Home = ({ navigation }: Props) => {
 
   const isDrawerVisible = useIsDrawerOpen();
   const [visible, setVisible] = React.useState(false);
-  const { profile , logOut } = useLogin();
+  const { profile, logOut } = useLogin();
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
   const containerStyle = { width: '80%', marginLeft: '10%', backgroundColor: 'rgba(255,255,255,0)', padding: 20, TouchableOpacity: 0 };
@@ -62,15 +62,12 @@ const Home = ({ navigation }: Props) => {
   return (
     <>
       <Appbar.Header>
-        
-
         <TouchableOpacity onPress={_goBack}>
-          
           <Avatar.Image
-          style={{marginLeft : 10}}
+            style={{ marginLeft: 10 }}
             size={40}
-            source={ !profile?.avatar?.url ?  require('../assets/man.png') : { uri: `${API_URL}${profile?.avatar?.url}`} }
-            
+            source={!profile?.avatar?.url ? require('../assets/man.png') : { uri: `${API_URL}${profile?.avatar?.url}` }}
+
           />
         </TouchableOpacity>
         <Appbar.Content title="Filetül" subtitle="Barkod Uygulaması" />
@@ -80,27 +77,24 @@ const Home = ({ navigation }: Props) => {
           underlayColor="transparent"
         >
         </Hamburger>
-
       </Appbar.Header>
       {visible ?
-      <>
-        <Searchbar
-          placeholder="Aramak İstediğiniz Barkod"
-          onChangeText={query => { SetBarcode(query) }}
-          value={barcode}
-          style={{textAlign : 'center'}}
-        />
-        <Button disabled={!barcode} icon="barcode"  mode="contained" style={{width : '60%' , marginLeft : '20%' ,  marginTop : 20 , marginBottom : 20}} onPress={() => _handleSearch(barcode)}>
-        Arama Yap
-      </Button>
-      </>
+        <>
+          <Searchbar
+            placeholder="Aramak İstediğiniz Barkod"
+            onChangeText={query => { SetBarcode(query) }}
+            value={barcode}
+            style={{ textAlign: 'center' }}
+          />
+          <Button disabled={!barcode} icon="barcode" mode="contained" style={{ width: '60%', marginLeft: '20%', marginTop: 20, marginBottom: 20 }} onPress={() => _handleSearch(barcode)}>
+            Arama Yap
+          </Button>
+        </>
         : <></>
       }
       <View style={styles.container}>
-
         <Provider>
           <Portal>
-
             <List.AccordionGroup>
               <List.Accordion expanded={true} title="Geçmiş Taramalar" id="1">
                 <List.Item
@@ -116,12 +110,9 @@ const Home = ({ navigation }: Props) => {
                   left={props => <List.Icon {...props} icon="folder" />}
                 />
               </List.Accordion>
-
             </List.AccordionGroup>
             <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle}>
-
             </Modal>
-
             <FAB.Group
               open={open}
               icon={open ? 'barcode' : 'barcode'}

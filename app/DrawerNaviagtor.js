@@ -7,6 +7,8 @@ import { Appbar, Avatar, Button } from 'react-native-paper';
 import Home from './components/Home';
 import { useLogin } from './context/LoginProvider';
 import Barcode from './screens/Barcode';
+import Form from './screens/Form';
+import SuccessPage from './screens/Success';
 
 const Drawer = createDrawerNavigator();
 
@@ -14,28 +16,29 @@ const CustomDrawer = props => {
 
 
 
-  const { profile , logOut } = useLogin();
+  const { profile, logOut } = useLogin();
+  console.log(profile);
   return (
     <>
       <Appbar.Header>
 
-     
+
         <TouchableOpacity >
           <Avatar.Image
             style={{ marginLeft: 10 }}
             size={40}
-            source= { !profile?.avatar?.url ?  require('./assets/man.png') : { uri: `${API_URL}${profile?.avatar?.url}`} }
+            source={!profile?.avatar?.url ? require('./assets/man.png') : { uri: `${API_URL}${profile?.avatar?.url}` }}
           />
         </TouchableOpacity>
-        <Appbar.Content title={`${profile.name} ${profile.lastname}`} subtitle={profile.email} />
-        
+        <Appbar.Content title={`${profile.title}`} subtitle={profile.email} />
+
 
       </Appbar.Header>
 
       <View style={{ flex: 1 }}>
         <DrawerContentScrollView {...props}>
 
-      
+
         </DrawerContentScrollView>
         <Button mode="contained"
 
@@ -47,7 +50,7 @@ const CustomDrawer = props => {
           }}
           onPress={() => logOut()}
         >
-          Çıkış Yap 
+          Çıkış Yap
         </Button>
 
       </View>
@@ -79,6 +82,9 @@ const DrawerNavigator = () => {
     >
       <Drawer.Screen component={Home} name='Home' />
       <Drawer.Screen component={Barcode} name='Barcode' />
+      <Drawer.Screen component={Form} name='Form' />
+      <Drawer.Screen component={SuccessPage} name='SuccessPage' />
+      
     </Drawer.Navigator>
   );
 };

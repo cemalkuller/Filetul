@@ -1,13 +1,23 @@
 import { API_URL , REMOTE_IP } from "@env"
 import axios from 'axios';
+axios.interceptors.request.use(request => {
+  console.log('Starting Request', JSON.stringify(request, null, 2))
+  return request
+})
 
-export default axios.create({ baseURL: `${API_URL}/api/` });
+axios.interceptors.response.use(response => {
+  console.log('Response:', JSON.stringify(response, null, 2))
+  return response
+})
+
+export default axios.create({ baseURL: `${REMOTE_IP}` });
 
 
 export const jwt = (token) => axios.create({
-     baseURL: `${API_URL}/api/`,
+     baseURL: `${REMOTE_IP}`,
     headers: {'Authorization': 'Bearer '+token}
   });
+  console.log(REMOTE_IP);
   export const remote =  axios.create({ baseURL: `${REMOTE_IP}` });
 
   
