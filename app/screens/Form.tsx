@@ -192,7 +192,6 @@ const Home = ({ navigation }: Props) => {
 
     const getFormFields = async () => {
 
-        // Fairs
 
         try {
             let Bearers = await AsyncStorage.getItem("jwt");
