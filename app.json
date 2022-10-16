@@ -1,14 +1,11 @@
 {
-
-
-  
   "expo": {
     "name": "Filetül Barkod Sorgulama",
     "slug": "filetul",
-    "version": "1.0.9",
+    "version": "2.0.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "plugins": [ 
+    "plugins": [
       [
         "expo-image-picker",
         {
@@ -29,7 +26,7 @@
     ],
     "ios": {
       "bundleIdentifier": "com.filetul.barkod",
-      "supportsTablet": true , 
+      "supportsTablet": true,
       "infoPlist": {
         "NSCameraUsageDescription": "Barkod Taramak İçin Kamera İzni Vermeniz Gerekmektedir."
       }
@@ -40,11 +37,20 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "permissions": [ "CAMERA", "WRITE_EXTERNAL_STORAGE", "CAMERA_ROLL" ]
+      "permissions": [
+        "CAMERA",
+        "WRITE_EXTERNAL_STORAGE",
+        "CAMERA_ROLL",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "7a94678b-5159-4cd1-be66-abe7e0b4a5d7"
+      }
     }
   }
 }
-
