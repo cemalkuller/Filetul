@@ -17,7 +17,7 @@ export const jwt = (token) => axios.create({
      baseURL: `${REMOTE_IP}`,
     headers: {'Authorization': 'Bearer '+token}
   });
-  console.log(REMOTE_IP);
+  console.log(REMOTE_IP , "deneme");
   export const remote =  axios.create({ baseURL: `${REMOTE_IP}` });
 
   

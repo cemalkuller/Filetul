@@ -1,4 +1,4 @@
-import { useIsDrawerOpen } from '@react-navigation/drawer';
+import { useDrawerStatus } from '@react-navigation/drawer';
 import { DrawerActions } from '@react-navigation/native'
 import React, { memo, useEffect, useState } from 'react';
 import { IMAGE_FOLDER } from "@env"
@@ -71,7 +71,7 @@ const Home = ({ navigation }: Props) => {
     const [imageData, setImageData] = useState(undefined);
     const [aspectLock, setaspectLock] = useState(false);
 
-    const isDrawerVisible = useIsDrawerOpen();
+    const isDrawerVisible = useDrawerStatus();
     const [contentVisible, setContentVisible] = useState(false);
     const { barcodes , SetBarcode , SetBarcodes} = useBarcode();
 

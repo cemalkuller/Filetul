@@ -20,6 +20,7 @@ const StackNavigator = () => {
 
 const MainNavigator = () => {
   const { isLoggedIn } = useLogin();
+  console.log("Giriş" , isLoggedIn);
   return isLoggedIn ? <DrawerNavigator /> : <StackNavigator />;
 };
 export default MainNavigator;

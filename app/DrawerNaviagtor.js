@@ -61,6 +61,7 @@ const CustomDrawer = props => {
 const DrawerNavigator = () => {
   return (
     <Drawer.Navigator
+    
       screenOptions={{
         headerShown: false,
         headerStyle: {

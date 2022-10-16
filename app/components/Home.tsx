@@ -1,5 +1,5 @@
 import { API_URL } from "@env"
-import { useIsDrawerOpen } from '@react-navigation/drawer';
+import { useDrawerStatus } from '@react-navigation/drawer';
 import { DrawerActions } from '@react-navigation/native'
 import React, { memo, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View  , FlatList} from 'react-native';
@@ -23,7 +23,7 @@ const optionsPerPage = [2, 3, 4];
 
 const Home = ({ navigation }: Props) => {
 
-  const isDrawerVisible = useIsDrawerOpen();
+  const isDrawerVisible = useDrawerStatus();
   const [visible, setVisible] = React.useState(false);
   const { profile, logOut } = useLogin();
   const showModal = () => setVisible(true);
