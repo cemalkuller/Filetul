@@ -1,21 +1,19 @@
 import { useIsFocused } from '@react-navigation/native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import React, { memo, useEffect, useRef, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View, Image, TextInput } from 'react-native';
 import ActionSheet, { SheetManager } from "react-native-actions-sheet";
 import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
-import {imageUrl} from "../helpers"
+import { imageUrl } from "../helpers"
 import { ActivityIndicator, Button as PButton, List, Avatar, Appbar, Divider } from 'react-native-paper';
 import BackButtonCam from '../components/BackButtonCam';
 import FlashButton from '../components/FlashButton';
 import BasketButton from '../components/BasketButton';
-import { REMOTE_URL } from "@env"
 import { useBarcode } from '../context/LoginProvider';
 import { Navigation } from '../types';
 import { jwt } from '../api/client';
-const querystring = require('querystring');
 import BarcodeMask from 'react-native-barcode-mask';
 
 const Sheets = {
@@ -31,14 +29,25 @@ type Props = {
 const Barcode = ({ navigation }: Props) => {
 
   const [hasPermission, setHasPermission] = useState(null);
+  const [selectedBarkod, setselectedBarkod] = useState({});
   const [scanned, setScanned] = useState(false);
   const { barcode, SetBarcode, barcodes, SetBarcodes } = useBarcode();
   const [loading, setLoading] = useState(false);
   const [sound, setSound] = useState(true);
   const [accessToken, setAccessToken] = useState("");
   const actionSheetRef = useRef<ActionSheet>(null);
+  const BarcodeactionSheetRef = useRef<ActionSheet>(null);
+
   const isFocused = useIsFocused();
 
+  const handleNote = (e) => {
+
+
+    const sel = selectedBarkod;
+    sel.note = e;
+    setselectedBarkod(sel);
+
+  }
 
   const getAToken = async () => {
     let userData = await AsyncStorage.getItem("access_token");
@@ -142,13 +151,11 @@ const Barcode = ({ navigation }: Props) => {
   useEffect(() => {
 
     if (!barcodes?.length) {
-      SheetManager.hide(Sheets.testSheet, null);
+      //aç bunu SheetManager.hide(Sheets.testSheet, null);
     }
 
 
   }, [barcodes]);
-
-
 
   const scanBarkod = async (barcode) => {
 
@@ -161,29 +168,28 @@ const Barcode = ({ navigation }: Props) => {
     try {
       let userData = await AsyncStorage.getItem("jwt");
       try {
-        if(userData)
-        {
-        
-      const res = await  jwt(userData).post('product/barcode', { barcode: barcode});
-      console.log(res?.data);
-      setLoading(false);
-      setScanned(false);
+        if (userData) {
 
-      if (res?.data?.success) {
-        //console.log(res?.data?.Data);
-        showToast("success", res?.data?.data?.product_name);
-        SetBarcodes([...barcodes, res?.data?.data]);
-      }
-      else {
-        showToast("error", barcode, res?.data?.message, "top");
-      }
+          const res = await jwt(userData).post('product/barcode', { barcode: barcode });
+
+          setLoading(false);
+          setScanned(false);
+
+          if (res?.data?.success) {
+            console.log(res?.data?.Data);
+            setselectedBarkod(res?.data?.data);
+            BarcodeactionSheetRef.current?.show();
+          }
+          else {
+            showToast("error", barcode, res?.data?.message, "top");
+          }
         }
-    } catch (error) {
- 
-      console.log(error.response.data);
-     
+      } catch (error) {
 
-    }
+        console.log(error.response.data);
+
+
+      }
 
 
     } catch (error) {
@@ -194,6 +200,23 @@ const Barcode = ({ navigation }: Props) => {
 
 
     }
+
+  };
+
+
+  const setscanBarkod = async (barcod) => {
+
+    setScanned(false);
+
+    if (barcod?.barcode) {
+      showToast("success", barcod?.product_name);
+      BarcodeactionSheetRef.current?.hide();
+      SetBarcodes([...barcodes, barcod]);
+    }
+    else {
+      showToast("error", "Bakod Bulunamadı", "top");
+    }
+
 
   };
 
@@ -220,8 +243,12 @@ const Barcode = ({ navigation }: Props) => {
           SetBarcode(data);
         }
         else {
-          setLoading(false);
-          setScanned(false);
+
+          scanBarkod(data);
+          SetBarcode(data);
+
+          // setLoading(false);
+          //setScanned(false);
         }
 
 
@@ -343,7 +370,7 @@ const Barcode = ({ navigation }: Props) => {
                         key={`barcodeList${idx}`}
                         title={data?.product_name}
                         description={data?.product_description}
-                        left={() => <Avatar.Image style={{backgroundColor : '#eee'}} size={64} source={!data?.image ? require('../assets/noproduct.png') : { uri: `${imageUrl(data?.image)}` }} />}
+                        left={() => <Avatar.Image style={{ backgroundColor: '#eee' }} size={64} source={!data?.image ? require('../assets/noproduct.png') : { uri: `${imageUrl(data?.image)}` }} />}
                         right={props => <TouchableOpacity
                           onPress={() => {
                             handleRemoveItem(idx, data?.product_name)
@@ -358,9 +385,6 @@ const Barcode = ({ navigation }: Props) => {
                   )
                 })
                 }
-
-
-
               </List.Section>
 
 
@@ -383,12 +407,86 @@ const Barcode = ({ navigation }: Props) => {
 
           </View>
         </ActionSheet>
+
+
+        <ActionSheet
+          ref={BarcodeactionSheetRef}
+          initialOffsetFromBottom={0.7}
+          onBeforeShow={data => console.log(data)}
+          id={Sheets.testSheet}
+          statusBarTranslucent
+          bounceOnOpen={true}
+          drawUnderStatusBar={true}
+          bounciness={10}
+          gestureEnabled={true}
+          keyboardDismissMode='interactive'
+          keyboardHandlerEnabled={false}
+          defaultOverlayOpacity={0.1}>
+          <View
+            style={{
+              paddingHorizontal: 12,
+            }}>
+            <Appbar.Header style={{ backgroundColor: 'transparent' }}   >
+              <Appbar.BackAction onPress={SheetManager.hideAll} />
+              <Appbar.Content title={selectedBarkod?.product_name} />
+            </Appbar.Header>
+            <Divider />
+
+            <ScrollView
+              nestedScrollEnabled
+              onMomentumScrollEnd={() => {
+                actionSheetRef.current?.handleChildScrollEnd();
+              }}
+              style={styles.scrollview}>
+
+              <Image style={styles.image} source={!selectedBarkod?.image ? require('../assets/noproduct.png') : { uri: `${imageUrl(selectedBarkod?.image)}` }} />
+
+
+              <View style={styles.textAreaContainer} >
+                <TextInput
+                  style={styles.textArea}
+                  underlineColorAndroid="transparent"
+                  placeholder="Eklemek İstediğiniz Not"
+                  placeholderTextColor="grey"
+                  numberOfLines={10}
+                  value={selectedBarkod?.note}
+
+                  onChangeText={newText => handleNote(newText)}
+                  multiline={true}
+                />
+
+              </View>
+              <View style={styles.textAreaContainer} >
+                <PButton onPress={() => setscanBarkod(selectedBarkod)} mode='contained'  >Listeye Ekle</PButton>
+              </View>
+
+              <View>
+
+                <TouchableOpacity
+                  onPress={() => {
+                    SheetManager.hide(Sheets.testSheet, null);
+                  }}
+                  style={styles.listItem}>
+
+
+                </TouchableOpacity>
+
+              </View>
+
+              {/*  Add a Small Footer at Bottom */}
+              <View style={styles.footer} />
+            </ScrollView>
+
+          </View>
+        </ActionSheet>
+
       </View>
 
     </View>
   );
 }
 const opacity = 'rgba(0, 0, 0, .6)';
+
 
 const styles = StyleSheet.create({
   container: {
@@ -397,8 +495,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: "center",
   },
+  image: {
+    width: "100%",
+    height: 100,
+  },
   footer: {
     height: 200,
+  },
+  textAreaContainer: {
+    borderColor: "#eeeeee",
+    borderWidth: 1,
+    padding: 5,
+    marginTop: 20
+  },
+  textArea: {
+    height: 150,
+    justifyContent: "flex-start"
   },
   listItem: {
     flexDirection: 'row',
