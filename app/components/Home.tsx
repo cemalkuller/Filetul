@@ -2,16 +2,18 @@ import { API_URL } from "@env"
 import { useDrawerStatus } from '@react-navigation/drawer';
 import { DrawerActions } from '@react-navigation/native'
 import React, { memo, useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View  , FlatList} from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View, FlatList } from 'react-native';
 import ActionSheet, { SheetManager } from "react-native-actions-sheet";
 import Hamburger from 'react-native-animated-hamburger';
-import { Appbar, Avatar, Button, FAB, List, Modal, Portal, Provider, Searchbar , DataTable , IconButton , DefaultTheme } from 'react-native-paper';
+import { Appbar, Avatar, Button, FAB, List, Modal, Portal, Provider, Searchbar, DataTable, IconButton, DefaultTheme } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLogin } from '../context/LoginProvider';
 import { useBarcode } from '../context/LoginProvider';
 import { Navigation } from '../types';
 import { jwt } from '../api/client';
 import Toast from 'react-native-toast-message';
+import { Keyboard } from 'react-native'
+
 type Props = {
   navigation: Navigation;
 };
@@ -46,31 +48,31 @@ const Home = ({ navigation }: Props) => {
 
 
     try {
-        let Bearers = await AsyncStorage.getItem("jwt");
+      let Bearers = await AsyncStorage.getItem("jwt");
 
-        try {
-            const LangRes = await jwt(Bearers).get('Forms?limit=20&page=1');
-            console.log(LangRes.data);
-            setSendingData(LangRes?.data?.items);
-           
-        } catch (error) {
-          console.log(error.response);
-        }
+      try {
+        const LangRes = await jwt(Bearers).get('Forms?limit=20&page=1');
+        console.log(LangRes.data);
+        setSendingData(LangRes?.data?.items);
+
+      } catch (error) {
+        console.log(error.response);
+      }
 
     } catch (error) {
       console.log(error.response);
     }
-}
+  }
 
-React.useEffect(() => {
-  getFormFields();
-}, [navigation]);
+  React.useEffect(() => {
+    getFormFields();
+  }, [navigation]);
 
 
 
   React.useEffect(() => {
     setPage(0);
-  
+
   }, [itemsPerPage]);
 
 
@@ -79,46 +81,47 @@ React.useEffect(() => {
 
   useEffect(() => {
     if (isDrawerVisible) {
-      setContentVisible(true);
-    } else {
       setContentVisible(false);
+    } else {
+      setContentVisible(true);
     }
     setState({ open: false })
   }, [isDrawerVisible]);
 
-  const _renderItem = ({ item }) =>
-  {
-  
+  const _renderItem = ({ item }) => {
+
     return (
 
-      <DataTable.Row>
+      <DataTable.Row  key={item?.id}>
         <DataTable.Cell style={{ flex: 2 }}>
-        
+
           <Text>{item?.fullname}</Text>
-          
-          
+
+
         </DataTable.Cell>
         <DataTable.Cell style={{ flex: 2 }}>
           {item?.fair}
-          </DataTable.Cell>
+        </DataTable.Cell>
         <DataTable.Cell numeric>{item?.qty}</DataTable.Cell>
         <DataTable.Cell numeric>
-        <IconButton  icon="arrow-right-bold-circle" 
-       size={28}
-       color={DefaultTheme.colors.primary}
-   
-    onPress={() => console.log('Pressed')}/>
-          </DataTable.Cell>
+          <IconButton icon="arrow-right-bold-circle"
+            size={28}
+            color={DefaultTheme.colors.primary}
 
-       
+            onPress={() => console.log('Pressed')} />
+        </DataTable.Cell>
+
+
       </DataTable.Row>
     );
   }
-  
 
-  const _goBack = () => navigation.dispatch(DrawerActions.openDrawer());
+
+  const _goBack = () => navigation.toggleDrawer();
 
   const _handleSearch = (query) => {
+
+    Keyboard.dismiss()
 
     scanBarkod(barcode);
     SheetManager.show(Sheets.testSheet, { text: query });
@@ -131,7 +134,7 @@ React.useEffect(() => {
 
   const onStateChange = ({ open }) => setState({ open });
 
-  const onItemsPerPageChange = () => {console.log("test")};
+  const onItemsPerPageChange = () => { console.log("test") };
 
 
   const showToast = (type = null, title = null, description = null, position = null) => {
@@ -146,43 +149,42 @@ React.useEffect(() => {
 
   const scanBarkod = async (barcode) => {
 
-  
+
     try {
       let userData = await AsyncStorage.getItem("jwt");
       try {
-        if(userData)
-        {
-        
-      const res = await  jwt(userData).post('product/search', { title: barcode});
+        if (userData) {
 
-      console.log(res?.data);
-      if (res?.data?.success) {
+          const res = await jwt(userData).post('product/search', { title: barcode });
 
-     
-       console.log(res?.data?.data);
-  
-      }
-      else {
-        showToast("error", barcode, res?.data?.message, "top");
-      }
+          console.log(res?.data);
+          if (res?.data?.success) {
+
+
+            console.log(res?.data?.data);
+
+          }
+          else {
+            showToast("error", barcode, res?.data?.message, "top");
+          }
         }
+      } catch (error) {
+
+        console.log(error.response.data);
+
+
+      }
+
+
     } catch (error) {
- 
-      console.log(error.response.data);
-     
-
-    }
-
-
-    } catch (error) {
 
       console.log(error.response.data);
-  
+
 
     }
 
   };
-  
+
   const { open } = state;
   const actionSheetRef = useRef<ActionSheet>(null);
 
@@ -212,7 +214,7 @@ React.useEffect(() => {
             onChangeText={query => { SetBarcode(query) }}
             value={barcode}
             style={{ textAlign: 'center' }}
-            onBlur={query => { console.log("Barcode",query) }}
+            onBlur={query => { console.log("Barcode", query) }}
           />
           <Button disabled={!barcode} icon="barcode" mode="contained" style={{ width: '60%', marginLeft: '20%', marginTop: 20, marginBottom: 20 }} onPress={() => _handleSearch(barcode)}>
             Arama Yap
@@ -223,39 +225,33 @@ React.useEffect(() => {
       <View style={styles.container}>
         <Provider>
           <Portal>
-          <DataTable style={{height : "80%"}}>
-      <DataTable.Header>
-        <DataTable.Title  style={{ flex: 2 }}>Müşteri</DataTable.Title>
-        <DataTable.Title  style={{ flex: 2 }}>Fuar</DataTable.Title>
-        <DataTable.Title numeric>Adet</DataTable.Title>
-        <DataTable.Title> </DataTable.Title>
-      </DataTable.Header>
+            <DataTable style={{ height: "80%" }}>
+              <DataTable.Header>
+                <DataTable.Title style={{ flex: 2 }}>Müşteri</DataTable.Title>
+                <DataTable.Title style={{ flex: 2 }}>Fuar</DataTable.Title>
+                <DataTable.Title numeric>Adet</DataTable.Title>
+                <DataTable.Title> </DataTable.Title>
+              </DataTable.Header>
 
-          {sendingData?.length ? 
-           <FlatList data={sendingData} renderItem={_renderItem} />
-           : <></>
-          }
+              {sendingData?.length ?
+                <FlatList data={sendingData} renderItem={_renderItem} />
+                : <></>
+              }
 
- 
 
-    </DataTable>
+
+            </DataTable>
 
             <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle}>
             </Modal>
-            <FAB.Group
-              open={open}
-              icon={open ? 'barcode' : 'barcode'}
-              actions={[]}
-              onStateChange={() => navigation.navigate('Barcode')}
+
+            <FAB
+              icon="barcode"
+              style={styles.fab}
+              onPress={() => navigation.navigate('Barcode')}
               color="#ffffff"
-
-              fabStyle={{ backgroundColor: "#6200ee" }}
-              onPress={() => {
-
-                // navigation.navigate('Barcode')
-
-              }}
             />
+
 
           </Portal>
         </Provider>
@@ -327,7 +323,15 @@ const styles = StyleSheet.create({
   },
   footer: {
     height: 100,
-  }
+  },
+  fab: {
+    position: 'absolute',
+    margin: 16,
+    right: 0,
+    bottom: 35,
+    backgroundColor: "#6200ee"
+  },
 });
+
 
 export default memo(Home);

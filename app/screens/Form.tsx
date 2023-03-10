@@ -10,10 +10,6 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import Toast from 'react-native-toast-message';
 import * as ImagePicker from 'expo-image-picker';
 import Background from '../components/BackgroundForm';
-import Animated, {
-    useAnimatedScrollHandler,
-    useSharedValue,
-} from 'react-native-reanimated';
 import Hamburger from 'react-native-animated-hamburger';
 import {
     Appbar, Avatar, DefaultTheme,
@@ -40,8 +36,6 @@ interface TForm {
     template?: any;
 }
 
-const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
-
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const ITEM_WIDTH = SCREEN_WIDTH / 5;
@@ -52,17 +46,6 @@ const ratio = SCREEN_WIDTH / 541;
 
 const Home = ({ navigation }: Props) => {
 
-    const transX = useSharedValue(0);
-
-    const renderItem = ({ item, index }) => {
-        return <Item index={index} item={item} transX={transX} />;
-    };
-
-    const scrollHandler = useAnimatedScrollHandler({
-        onScroll: (event) => {
-            transX.value = event.contentOffset.x;
-        },
-    });
 
     const [imageUri, setImageUri] = useState(undefined);
     const [editorVisible, setEditorVisible] = useState(false);
@@ -109,9 +92,7 @@ const Home = ({ navigation }: Props) => {
         else if (functions === "setAllLangs") {
             setAllLangs(values);
         }
-        else if (functions === "setallTemplates") {
-            setallTemplates(values);
-        }
+        
         return values;
     }
 
@@ -124,7 +105,8 @@ const Home = ({ navigation }: Props) => {
           text2: description ? description : 'Barkod Bulundu ve Listeye Eklendi 👋'
         });
       }
-    const submitFile = async (file) => {
+  
+      const submitFile = async (file) => {
 
       
         try {
@@ -187,7 +169,6 @@ const Home = ({ navigation }: Props) => {
         
         }
     }
-
 
 
     const getFormFields = async () => {
@@ -368,8 +349,9 @@ const Home = ({ navigation }: Props) => {
         if (response.granted) {
             const pickerResult = await ImagePicker.launchCameraAsync();
             // Check they didn't cancel the picking
-            if (!pickerResult.cancelled) {
-                launchEditor(pickerResult?.uri);
+            if (!pickerResult.canceled) {
+                                console.log("Resim",pickerResult?.assets[0]?.uri);
+                launchEditor(pickerResult?.assets[0]?.uri);
             }
         } else {
             // If not then alert the user they need to enable it
@@ -393,7 +375,7 @@ const Home = ({ navigation }: Props) => {
         
             <Provider theme={DefaultTheme}>
 
-                <ThemeProvider theme={DefaultTheme}>
+              
                     <StatusBar
                         backgroundColor={
                             DefaultTheme.colors.primary
@@ -452,22 +434,7 @@ const Home = ({ navigation }: Props) => {
                                 />
                                 }
                                 <View style={styles.listContainer}>
-                                    <AnimatedFlatList
-                                        onScroll={scrollHandler}
-                                        horizontal
-                                        showsHorizontalScrollIndicator={false}
-
-                                        style={styles.list}
-                                        data={barcodes}
-                                        decelerationRate="fast"
-
-                                        snapToInterval={ITEM_WIDTH}
-                                        scrollEventThrottle={16}
-                                        pagingEnabled
-                                        snapToAlignment="center"
-                                        renderItem={renderItem}
-                                        keyExtractor={(item, index) => `${item.id}-${index}`}
-                                    />
+                                   
                                 </View>
 
                                
@@ -490,6 +457,7 @@ const Home = ({ navigation }: Props) => {
                                     visible={showDropDown}
                                     showDropDown={() => Flang ? setShowDropDown(true) : setShowDropDown(false)}
                                     onDismiss={() => setShowDropDown(false)}
+                           
                                     value={Ffair}
                                     placeholder="Fuar Seçimi Yapınız"
                                     setValue={(e) => { SetFfair(e) }}
@@ -505,12 +473,12 @@ const Home = ({ navigation }: Props) => {
                                     value={FCustomerName}
                                     onChangeText={text => setFCustomerName(text)}
                                     mode="outlined"
-                                    disabled={!template}
+                                  //  disabled={!template}
                                 />
                                 <View style={styles.spacerStyle} />
 
                                 <TextInput
-                                    disabled={!template}
+                                   // disabled={!template}
                                     keyboardType='email-address'
                                     autoCapitalize='none'
                                     autoCorrect={false}
@@ -522,7 +490,7 @@ const Home = ({ navigation }: Props) => {
                                 <View style={styles.spacerStyle} />
 
                                 <TextInput
-                                    disabled={!template}
+                                    //disabled={!template}
                                     multiline
                                     mode="outlined"
                                     numberOfLines={4}
@@ -538,7 +506,7 @@ const Home = ({ navigation }: Props) => {
                                 <View >
                                     {imageData ?
 
-                                        <View style={{ borderRadius: '500', overflow: 'hidden', width: (SCREEN_WIDTH - 40) / 2, height: (SCREEN_WIDTH - 40) / 2, marginLeft: '25%', display: 'flex', alignContent: 'center', alignItems: 'center' }}>
+                                        <View style={{ borderRadius: 500, overflow: 'hidden', width: (SCREEN_WIDTH - 40) / 2, height: (SCREEN_WIDTH - 40) / 2, marginLeft: '25%', display: 'flex', alignContent: 'center', alignItems: 'center' }}>
                                             <View style={{
                                                 width: (SCREEN_WIDTH - 40) / 2, height: (SCREEN_WIDTH - 40) / 2, backgroundColor: "rgba(0,0,0,0.5)",
                                                 position: 'absolute', zIndex: 3
@@ -595,7 +563,7 @@ const Home = ({ navigation }: Props) => {
                         </TouchableWithoutFeedback>
                         </KeyboardAwareScrollView>
                     </Surface>
-                </ThemeProvider>
+               
             </Provider>
 
             
@@ -605,15 +573,6 @@ const Home = ({ navigation }: Props) => {
 };
 
 
-const Item = ({ item }) => {
-
-    return (
-        <Animated.View style={[styles.box]} item={item}>
-            <Avatar.Image style={{ backgroundColor: '#eee' }} size={64} source={!item?.image ? require('../assets/noproduct.png') : { uri: `${imageUrl(item?.image)}` }} />
-            <Text style={styles.label}>{item.barcode}</Text>
-        </Animated.View>
-    );
-};
 
 
 

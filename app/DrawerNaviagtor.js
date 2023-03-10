@@ -13,16 +13,10 @@ import SuccessPage from './screens/Success';
 const Drawer = createDrawerNavigator();
 
 const CustomDrawer = props => {
-
-
-
   const { profile, logOut } = useLogin();
-  console.log(profile);
   return (
     <>
       <Appbar.Header>
-
-
         <TouchableOpacity >
           <Avatar.Image
             style={{ marginLeft: 10 }}
@@ -81,7 +75,7 @@ const DrawerNavigator = () => {
 
       drawerContent={props => <CustomDrawer {...props} />}
     >
-      <Drawer.Screen component={Home} name='Home' />
+      <Drawer.Screen component={Home} name='Home'  />
       <Drawer.Screen component={Barcode} name='Barcode' />
       <Drawer.Screen component={Form} name='Form' />
       <Drawer.Screen component={SuccessPage} name='SuccessPage' />

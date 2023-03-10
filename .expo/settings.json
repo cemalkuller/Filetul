@@ -3,8 +3,8 @@
   "lanType": "ip",
   "dev": true,
   "minify": false,
-  "urlRandomness": "2k-yfa",
+  "urlRandomness": null,
   "https": false,
-  "scheme": "com.filetul.barkod",
+  "scheme": null,
   "devClient": false
 }

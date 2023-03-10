@@ -2,16 +2,20 @@
   "expo": {
     "name": "Filetül Barkod Sorgulama",
     "slug": "filetul",
-    "version": "2.0.5",
+    "version": "2.7.3", 
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "jsEngine": "hermes",
+    "sdkVersion": "48.0.0",
     "plugins": [
       [
         "expo-image-picker",
         {
           "photosPermission": "Kartvizit yüklemesi için gereken galeri izni"
         }
-      ]
+        
+      ],
+      "expo-build-properties"
     ],
     "splash": {
       "image": "./assets/splash.png",
@@ -19,7 +23,8 @@
       "backgroundColor": "#ffffff"
     },
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/7a94678b-5159-4cd1-be66-abe7e0b4a5d7"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -51,6 +56,9 @@
       "eas": {
         "projectId": "7a94678b-5159-4cd1-be66-abe7e0b4a5d7"
       }
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
     }
   }
 }

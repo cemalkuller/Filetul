@@ -1,21 +1,20 @@
 import { useIsFocused } from '@react-navigation/native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import React, { memo, useEffect, useRef, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View, Image, TextInput } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View, Image, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import ActionSheet, { SheetManager } from "react-native-actions-sheet";
-import { Audio } from 'expo-av';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
-import { imageUrl } from "../helpers"
-import { ActivityIndicator, Button as PButton, List, Avatar, Appbar, Divider } from 'react-native-paper';
+import { ActivityIndicator, Button as PButton, List, Avatar, Appbar, Divider, Searchbar, Button, Surface } from 'react-native-paper';
 import BackButtonCam from '../components/BackButtonCam';
 import FlashButton from '../components/FlashButton';
+import SearchButton from '../components/SearchButton';
 import BasketButton from '../components/BasketButton';
 import { useBarcode } from '../context/LoginProvider';
 import { Navigation } from '../types';
 import { jwt } from '../api/client';
 import BarcodeMask from 'react-native-barcode-mask';
-
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 const Sheets = {
   testSheet: 'test_sheet_id',
 };
@@ -28,8 +27,9 @@ type Props = {
 
 const Barcode = ({ navigation }: Props) => {
 
+  const [visible, setVisible] = React.useState(false);
   const [hasPermission, setHasPermission] = useState(null);
-  const [selectedBarkod, setselectedBarkod] = useState({});
+  const [selectedBarkod, setselectedBarkod] = useState(null);
   const [scanned, setScanned] = useState(false);
   const { barcode, SetBarcode, barcodes, SetBarcodes } = useBarcode();
   const [loading, setLoading] = useState(false);
@@ -40,7 +40,7 @@ const Barcode = ({ navigation }: Props) => {
 
   const isFocused = useIsFocused();
 
-  const handleNote = (e) => {
+  const handleNote = (e: any) => {
 
 
     const sel = selectedBarkod;
@@ -108,30 +108,12 @@ const Barcode = ({ navigation }: Props) => {
 
   async function playSound() {
 
-    try {
-      const { sound: soundObject, status } = await Audio.Sound.createAsync(
-        require('../assets/beep.mp3'),
-        { shouldPlay: true }
-      );
-    } catch (error) {
-      // An error occurred!
-    }
-
+ 
 
 
   }
 
   async function playError() {
-
-    try {
-      const { sound: soundObject, status } = await Audio.Sound.createAsync(
-        require('../assets/error.mp3'),
-        { shouldPlay: true }
-      );
-    } catch (error) {
-      // An error occurred!
-    }
-
 
 
   }
@@ -295,25 +277,50 @@ const Barcode = ({ navigation }: Props) => {
 
       }}>
         {isFocused && (
-          <BarCodeScanner
-            onBarCodeScanned={handleBarCodeScanned}
-
-            style={[StyleSheet.absoluteFill, {
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              top: 0,
-              height: '100%',
-              bottom: 0
-            }]}
-          >
-            <BarcodeMask outerMaskOpacity={0.8} backgroundColor={"#000000"} showAnimatedLine />
-          </BarCodeScanner>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}  >
+            <BarCodeScanner
+              onBarCodeScanned={handleBarCodeScanned}
+              style={[StyleSheet.absoluteFill, {
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                top: 0,
+                height: '100%',
+                bottom: 0
+              }]}
+            >
+              <BarcodeMask outerMaskOpacity={0.8} backgroundColor={"#000000"} showAnimatedLine />
+            </BarCodeScanner>
+          </TouchableWithoutFeedback>
         )}
         <BackButtonCam goBack={() => navigation.navigate('Home')} />
         {barcodes?.length ? <BasketButton value={barcodes?.length} action={() => OpenModal()} /> : <></>}
         <FlashButton active={sound} SetFlash={() => setSound(!sound)} />
+        <SearchButton active={sound} setSearch={() => setVisible(!visible)} />
 
+        {visible &&
+          <View style={{ position: 'absolute', top: 130, width: '80%' }}>
+            <Searchbar
+              key={"search"}
+              placeholder="Aramak İstediğiniz Barkod"
+              onChangeText={query => { SetBarcode(query); console.log("Barcode", query) }}
+              value={barcode}
+              searchAccessibilityLabel="test"
+              keyboardType={'numeric'}
+              style={{ textAlign: 'center' }}
+              inputStyle={{ textAlign: 'center' }}
+              onBlur={query => { console.log("Barcode", query) }}
+
+            />
+            <View style={{ display: "flex", justifyContent: "center" }}>
+              <Button disabled={!barcode} icon="barcode" mode="contained" style={{ marginTop: 20 }} onPress={() => scanBarkod(barcode)}>
+                Arama Yap
+              </Button>
+
+            </View>
+          </View>
+
+        }
         {barcodes?.length ? <PButton style={styles.aButton} icon="arrow-right" mode="contained" onPress={() => navigation.navigate('Form')}> Devam Et</PButton> : <></>}
 
         {loading && <ActivityIndicator
@@ -370,7 +377,7 @@ const Barcode = ({ navigation }: Props) => {
                         key={`barcodeList${idx}`}
                         title={data?.product_name}
                         description={data?.product_description}
-                        left={() => <Avatar.Image style={{ backgroundColor: '#eee' }} size={64} source={!data?.image ? require('../assets/noproduct.png') : { uri: `${imageUrl(data?.image)}` }} />}
+                        left={() => <Avatar.Image style={{ backgroundColor: '#eee' }} size={64} source={!data?.image ? require('../assets/noproduct.png') : { uri: `${data?.image}` }} />}
                         right={props => <TouchableOpacity
                           onPress={() => {
                             handleRemoveItem(idx, data?.product_name)
@@ -408,77 +415,103 @@ const Barcode = ({ navigation }: Props) => {
           </View>
         </ActionSheet>
 
+        <Surface >
+          <KeyboardAwareScrollView
 
-        <ActionSheet
-          ref={BarcodeactionSheetRef}
-          initialOffsetFromBottom={0.7}
-          onBeforeShow={data => console.log(data)}
-          id={Sheets.testSheet}
-          statusBarTranslucent
-          bounceOnOpen={true}
-          drawUnderStatusBar={true}
-          bounciness={10}
-          gestureEnabled={true}
-          keyboardDismissMode='interactive'
-          keyboardHandlerEnabled={false}
-          defaultOverlayOpacity={0.1}>
-          <View
-            style={{
-              paddingHorizontal: 12,
-            }}>
-            <Appbar.Header style={{ backgroundColor: 'transparent' }}   >
-              <Appbar.BackAction onPress={SheetManager.hideAll} />
-              <Appbar.Content title={selectedBarkod?.product_name} />
-            </Appbar.Header>
-            <Divider />
+            keyboardShouldPersistTaps="never"
+            onKeyboardWillShow={(frames: Object) => {
+              console.log('Keyboard event', frames)
+            }}
+            extraHeight={200}
+            enableOnAndroid={true}
+            enableResetScrollToCoords={true}
+          >
+            <ActionSheet
+              initialOffsetFromBottom={0.7}
+              onBeforeShow={data => console.log(data)}
+              id={Sheets.testSheet}
+              statusBarTranslucent
+              bounceOnOpen={true}
+              drawUnderStatusBar={true}
+              bounciness={10}
+              gestureEnabled={true}
+              keyboardDismissMode='interactive'
+              keyboardHandlerEnabled={false}
+              defaultOverlayOpacity={0.1}
 
-            <ScrollView
-              nestedScrollEnabled
-              onMomentumScrollEnd={() => {
-                actionSheetRef.current?.handleChildScrollEnd();
-              }}
-              style={styles.scrollview}>
-
-              <Image style={styles.image} source={!selectedBarkod?.image ? require('../assets/noproduct.png') : { uri: `${imageUrl(selectedBarkod?.image)}` }} />
+              ref={BarcodeactionSheetRef}
 
 
-              <View style={styles.textAreaContainer} >
-                <TextInput
-                  style={styles.textArea}
-                  underlineColorAndroid="transparent"
-                  placeholder="Eklemek İstediğiniz Not"
-                  placeholderTextColor="grey"
-                  numberOfLines={10}
-                  value={selectedBarkod?.note}
 
-                  onChangeText={newText => handleNote(newText)}
-                  multiline={true}
-                />
+            >
+              <View
+                style={{
+                  paddingHorizontal: 12,
+                }}>
+                <Appbar.Header style={{ backgroundColor: 'transparent' }}   >
+                  <Appbar.BackAction onPress={SheetManager.hideAll} />
+                  <Appbar.Content title={selectedBarkod?.product_name} />
+                </Appbar.Header>
+                <Divider />
 
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}  >
+                  <ScrollView
+                    keyboardShouldPersistTaps="always"
+                    keyboardDismissMode='on-drag'
+
+                    automaticallyAdjustContentInsets={false}
+                    horizontal={false}
+                    showsVerticalScrollIndicator={false}
+                    showsHorizontalScrollIndicator={false}
+                    nestedScrollEnabled
+                    onMomentumScrollEnd={() => {
+                      actionSheetRef.current?.handleChildScrollEnd();
+                    }}
+                    style={styles.scrollview}
+                  >
+
+
+                    <Image style={styles.image} source={!selectedBarkod?.image ? require('../assets/noproduct.png') : { uri: `${selectedBarkod?.image}` }} />
+
+                    <View style={styles.textAreaContainer} >
+                      <TextInput
+                        style={styles.textArea}
+                        underlineColorAndroid="transparent"
+                        placeholder="Eklemek İstediğiniz Not"
+                        placeholderTextColor="grey"
+                        numberOfLines={10}
+                        value={selectedBarkod?.note}
+
+                        onChangeText={newText => handleNote(newText)}
+                        multiline={true}
+                      />
+
+                    </View>
+                    <View style={styles.textAreaContainer} >
+                      <PButton onPress={() => setscanBarkod(selectedBarkod)} mode='contained'  >Listeye Ekle</PButton>
+                    </View>
+
+                    <View>
+
+                      <TouchableOpacity
+                        onPress={() => {
+                          SheetManager.hide(Sheets.testSheet, null);
+                        }}
+                        style={styles.listItem}>
+
+
+                      </TouchableOpacity>
+
+                    </View>
+
+                    {/*  Add a Small Footer at Bottom */}
+                    <View style={styles.footer} />
+                  </ScrollView>
+                </TouchableWithoutFeedback>
               </View>
-              <View style={styles.textAreaContainer} >
-                <PButton onPress={() => setscanBarkod(selectedBarkod)} mode='contained'  >Listeye Ekle</PButton>
-              </View>
-
-              <View>
-
-                <TouchableOpacity
-                  onPress={() => {
-                    SheetManager.hide(Sheets.testSheet, null);
-                  }}
-                  style={styles.listItem}>
-
-
-                </TouchableOpacity>
-
-              </View>
-
-              {/*  Add a Small Footer at Bottom */}
-              <View style={styles.footer} />
-            </ScrollView>
-
-          </View>
-        </ActionSheet>
+            </ActionSheet>
+          </KeyboardAwareScrollView>
+        </Surface>
 
       </View>
 
