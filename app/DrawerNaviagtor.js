@@ -9,7 +9,7 @@ import { useLogin } from './context/LoginProvider';
 import Barcode from './screens/Barcode';
 import Form from './screens/Form';
 import SuccessPage from './screens/Success';
-
+import SearchImage from './components/SearchImage';
 const Drawer = createDrawerNavigator();
 
 const CustomDrawer = props => {
@@ -76,6 +76,7 @@ const DrawerNavigator = () => {
       drawerContent={props => <CustomDrawer {...props} />}
     >
       <Drawer.Screen component={Home} name='Home'  />
+      <Drawer.Screen component={SearchImage} name='SearchImage'  />
       <Drawer.Screen component={Barcode} name='Barcode' />
       <Drawer.Screen component={Form} name='Form' />
       <Drawer.Screen component={SuccessPage} name='SuccessPage' />

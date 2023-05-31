@@ -5,7 +5,7 @@ import React, { memo, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View, FlatList } from 'react-native';
 import ActionSheet, { SheetManager } from "react-native-actions-sheet";
 import Hamburger from 'react-native-animated-hamburger';
-import { Appbar, Avatar, Button, FAB, List, Modal, Portal, Provider, Searchbar, DataTable, IconButton, DefaultTheme } from 'react-native-paper';
+import { Appbar, Avatar, Button, FAB, List, Modal, Portal, Provider, Searchbar, DataTable, IconButton, DefaultTheme  } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLogin } from '../context/LoginProvider';
 import { useBarcode } from '../context/LoginProvider';
@@ -13,6 +13,7 @@ import { Navigation } from '../types';
 import { jwt } from '../api/client';
 import Toast from 'react-native-toast-message';
 import { Keyboard } from 'react-native'
+import Background from "./Background";
 
 type Props = {
   navigation: Navigation;
@@ -43,30 +44,25 @@ const Home = ({ navigation }: Props) => {
   const from = page * itemsPerPage;
   const to = Math.min((page + 1) * itemsPerPage, sendingData?.length);
 
+  const DATA = [
+    {
+      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
+      title: 'Barkod Tara',
+      color: '#9368A6',
+      onpress : "Barcode",
+      icon : 'barcode',
+      fontColor : '#ffffff'
+    },
+    {
+      id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
+      title: 'Kumaş Ara',
+      color :  '#0e9aa7',
+      onpress : "SearchImage",
+      icon : 'magnify',
+      fontColor : '#ffffff' 
+    },
+  ];
 
-  const getFormFields = async () => {
-
-
-    try {
-      let Bearers = await AsyncStorage.getItem("jwt");
-
-      try {
-        const LangRes = await jwt(Bearers).get('Forms?limit=20&page=1');
-        console.log(LangRes.data);
-        setSendingData(LangRes?.data?.items);
-
-      } catch (error) {
-        console.log(error.response);
-      }
-
-    } catch (error) {
-      console.log(error.response);
-    }
-  }
-
-  React.useEffect(() => {
-    getFormFields();
-  }, [navigation]);
 
 
 
@@ -225,22 +221,32 @@ const Home = ({ navigation }: Props) => {
       <View style={styles.container}>
         <Provider>
           <Portal>
-            <DataTable style={{ height: "80%" }}>
-              <DataTable.Header>
-                <DataTable.Title style={{ flex: 2 }}>Müşteri</DataTable.Title>
-                <DataTable.Title style={{ flex: 2 }}>Fuar</DataTable.Title>
-                <DataTable.Title numeric>Adet</DataTable.Title>
-                <DataTable.Title> </DataTable.Title>
-              </DataTable.Header>
+          <FlatList
+             data={DATA}
+            numColumns={2}
+            renderItem={({item}) => (
+              <TouchableOpacity   onPress={() => navigation.navigate(item.onpress)} style={{ 
+                flex: 1,
+                height: 150,
+                 margin: 10,
+                borderRadius : 10,
+                alignItems : 'center',
+                justifyContent : 'center',
+                backgroundColor : item.color,
 
-              {sendingData?.length ?
-                <FlatList data={sendingData} renderItem={_renderItem} />
-                : <></>
-              }
+              }}>
+             
+              <IconButton
+                icon={item.icon}
+                size={30}
+                color={item.fontColor}
+              />
+                <Text style={{color : item.fontColor , fontSize : 18}}>{item.title}</Text>
+             
+              </TouchableOpacity>
+            )}
+          />
 
-
-
-            </DataTable>
 
             <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle}>
             </Modal>
