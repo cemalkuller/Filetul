@@ -52,7 +52,7 @@ const Barcode = ({ navigation }: Props) => {
   const getAToken = async () => {
     let userData = await AsyncStorage.getItem("access_token");
     try {
-      console.log(userData);
+  
       setAccessToken(userData);
     } catch (error) {
       // An error occurred!
@@ -121,7 +121,7 @@ const Barcode = ({ navigation }: Props) => {
 
   useEffect(() => {
 
-    console.log(barcodes);
+   
     getAToken();
     (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
@@ -158,7 +158,7 @@ const Barcode = ({ navigation }: Props) => {
           setScanned(false);
 
           if (res?.data?.success) {
-            console.log(res?.data?.Data);
+        
             setselectedBarkod(res?.data?.data);
             BarcodeactionSheetRef.current?.show();
           }
@@ -206,6 +206,20 @@ const Barcode = ({ navigation }: Props) => {
 
     SheetManager.show(Sheets.testSheet, { text: barcode })
 
+  }
+
+  const degistir = (kelime : any) =>{
+    if(kelime)
+    {
+      const kel = kelime.replace("195.175.208.222:3491","filetul.ngrok.app");
+      console.log(kel);
+    return kel;
+   
+    }
+    else 
+    {
+      return null 
+    }
   }
 
   const handleBarCodeScanned = ({ data }) => {
@@ -377,7 +391,7 @@ const Barcode = ({ navigation }: Props) => {
                         key={`barcodeList${idx}`}
                         title={data?.product_name}
                         description={data?.product_description}
-                        left={() => <Avatar.Image style={{ backgroundColor: '#eee' }} size={64} source={!data?.image ? require('../assets/noproduct.png') : { uri: `${data?.image}` }} />}
+                        left={() => <Avatar.Image style={{ backgroundColor: '#eee' }} size={64} source={!data?.image ? require('../assets/noproduct.png') : { uri: `${degistir(data?.image)}` }} />}
                         right={props => <TouchableOpacity
                           onPress={() => {
                             handleRemoveItem(idx, data?.product_name)
@@ -471,7 +485,7 @@ const Barcode = ({ navigation }: Props) => {
                   >
 
 
-                    <Image style={styles.image} source={!selectedBarkod?.image ? require('../assets/noproduct.png') : { uri: `${selectedBarkod?.image}` }} />
+                    <Image style={styles.image} source={!selectedBarkod?.image ? require('../assets/noproduct.png') : { uri: `${degistir(selectedBarkod?.image)}` }} />
 
                     <View style={styles.textAreaContainer} >
                       <TextInput

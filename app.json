@@ -2,7 +2,7 @@
   "expo": {
     "name": "Filetül Barkod Sorgulama",
     "slug": "filetul",
-    "version": "2.8.1", 
+    "version": "2.8.6", 
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "jsEngine": "hermes",
@@ -11,7 +11,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Kartvizit yüklemesi için gereken galeri izni"
+          "photosPermission": "Kartvizit yüklemesi için gereken galeri izni",
+          "cameraPermission"  : "Kartvizit yüklemesi için gereken galeri izni"
         }
         
       ],

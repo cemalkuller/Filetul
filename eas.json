@@ -1,26 +1,43 @@
 {
-  "cli": {
-    "version": ">= 0.52.0"
-  },
-  "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal"
+    "cli": {
+      "version": ">= 0.34.0"
     },
-     "preview": {
-      "android": {
-        "buildType": "apk"
+    "build": {
+        "production": {
+          "node": "16.13.0",
+          "android": {
+            "buildType": "apk"
+          }
+        },
+        "preview": {
+          "extends": "production",
+          "distribution": "internal",
+          "android": {
+            "buildType": "apk"
+          }
+        },
+        "development": {
+          "extends": "production",
+          "developmentClient": true,
+          "distribution": "internal",
+          "android": {
+            "buildType": "apk"
+          }
+        }
+        
       },
-      "distribution": "internal"
-    },
-    "production": {
-      "android": {
-        "buildType": "apk"
-      },
-      "distribution": "internal"
+    "submit": {
+      "production": {
+        "android": {
+          "serviceAccountKeyPath": "../path/to/api-xxx-yyy-zzz.json",
+          "track": "internal"
+        },
+        "ios": {
+          "appleId": "cemal@abonesepeti.com",
+          "ascAppId": "1625395799",
+          "appleTeamId": "J8UY58F8MH"
+        }
+      }
     }
-  },
-  "submit": {
-    "production": {}
   }
-}
+  

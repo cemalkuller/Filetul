@@ -7,6 +7,7 @@ import { FlatGrid } from 'react-native-super-grid';
 import { DrawerActions } from '@react-navigation/native';
 import { StatusBar } from 'react-native';
 import Background from '../components/BackgroundForm';
+import {displayCameraActivityFailedAlert} from '../components/AlertCamera';
 import { Navigation } from '../types';
 import {
   Appbar,
@@ -58,12 +59,21 @@ const FileUploadForm = ({ navigation }: Props) => {
     let result;
 
     if (option === 'camera') {
-      result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 1,
-      });
+      try {
+        result = await ImagePicker.launchCameraAsync({
+          mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 1,
+        });
+      } catch (e) {
+        if (e.message.includes("Call to function 'ExponentImagePicker.launchCameraAsync' has been rejected")) {
+          displayCameraActivityFailedAlert();
+        } else {
+          throw e;
+        }
+      }
+      
     } else if (option === 'gallery') {
       result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -109,7 +119,7 @@ const FileUploadForm = ({ navigation }: Props) => {
       if (response.ok) {
         const data = await response.json();
 
-        setResults(data);
+        setResults(data.slice(0, 20));
       } else {
         setLoading(false);
         console.log('Hata: İstek gerçekleştirilemedi.');
@@ -242,7 +252,7 @@ const FileUploadForm = ({ navigation }: Props) => {
                   <TouchableOpacity onPress={() => handleActionPress(item.image)}>
                     <Image
                       source={{
-                        uri: `http://195.175.208.222:3491/images/${item.image}`,
+                        uri: `http://filetul.ngrok.app/images/${item.image}`,
                       }}
                       style={styles.resultItemImg}
                     />
