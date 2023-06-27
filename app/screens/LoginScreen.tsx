@@ -54,6 +54,7 @@ const LoginScreen = ({ navigation }: Props) => {
     try {
       await AsyncStorage.setItem(key, value)
     } catch(e) {
+      alert("Jwt Token Başarısız.");
       // save error
     }
   
