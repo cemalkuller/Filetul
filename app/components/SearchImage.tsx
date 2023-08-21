@@ -9,6 +9,8 @@ import { StatusBar } from 'react-native';
 import Background from '../components/BackgroundForm';
 import {displayCameraActivityFailedAlert} from '../components/AlertCamera';
 import { Navigation } from '../types';
+import { connect } from 'react-redux';
+
 import {
   Appbar,
   DefaultTheme,
@@ -24,7 +26,7 @@ type Props = {
   navigation: Navigation;
 };
 
-const FileUploadForm = ({ navigation }: Props) => {
+const FileUploadForm = ({ navigation , dynamicUrl }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [searchType, setSearchType] = useState('search_similar');
   const [loading, setLoading] = useState(false);
@@ -106,9 +108,9 @@ const FileUploadForm = ({ navigation }: Props) => {
     const formData = new FormData();
     formData.append('image', JSON.parse(JSON.stringify({ uri: resizedImage.uri, type: 'image/jpeg', name: 'image.jpg' })));
     formData.append('searchType', searchType);
-
+      console.log(dynamicUrl);
     try {
-      const response = await fetch('https://c808-195-175-208-222.ngrok-free.app/' + searchType, {
+      const response = await fetch(dynamicUrl + searchType, {
         method: 'POST',
         body: formData,
         headers: {
@@ -138,7 +140,7 @@ const FileUploadForm = ({ navigation }: Props) => {
     const query = { query: imageName };
     try {
      
-      const response = await fetch('https://c808-195-175-208-222.ngrok-free.app/query_firebird', {
+      const response = await fetch(dynamicUrl+'query_firebird', {
         method: 'POST',
         body: JSON.stringify(query),
         headers: {
@@ -189,6 +191,7 @@ const FileUploadForm = ({ navigation }: Props) => {
           />
         </Appbar.Header>
         <View style={styles.container}>
+        
           <View style={styles.fileContainer}>
             <View style={styles.switchContainer}>
               {selectedFile && (
@@ -221,6 +224,7 @@ const FileUploadForm = ({ navigation }: Props) => {
           {!selectedFile && 
           <Button onPress={() => actionSheetRef.current?.setModalVisible(true)}>
             {'Resim Seç'}
+         
           </Button>
           }
           <Button
@@ -494,5 +498,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+const mapStateToProps = state => ({
+  dynamicUrl: state.dynamicUrl,
+});
 
-export default FileUploadForm;
+export default connect(mapStateToProps)(FileUploadForm);

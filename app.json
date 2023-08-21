@@ -2,7 +2,7 @@
   "expo": {
     "name": "Filetül Barkod Sorgulama",
     "slug": "filetul",
-    "version": "2.8.7", 
+    "version": "3.0.1", 
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "jsEngine": "hermes",
@@ -33,6 +33,9 @@
     "ios": {
       "bundleIdentifier": "com.filetul.barkod",
       "supportsTablet": true,
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "infoPlist": {
         "NSCameraUsageDescription": "Barkod Taramak İçin Kamera İzni Vermeniz Gerekmektedir."
       }

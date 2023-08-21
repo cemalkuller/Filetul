@@ -13,6 +13,10 @@ import SearchImage from './components/SearchImage';
 const Drawer = createDrawerNavigator();
 
 const CustomDrawer = props => {
+
+
+
+  
   const { profile, logOut } = useLogin();
   return (
     <>
