@@ -1,5 +1,6 @@
 import { API_URL } from "@env"
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import * as SecureStore from 'expo-secure-store';
 import React, { memo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
@@ -52,7 +53,7 @@ const LoginScreen = ({ navigation }: Props) => {
 
     const setStringValue = async (key , value) => {
     try {
-      await AsyncStorage.setItem(key, value)
+      await SecureStore.setItemAsync(key, value)
     } catch(e) {
       alert("Jwt Token Başarısız.");
       // save error
