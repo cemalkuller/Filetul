@@ -48,7 +48,7 @@ const CustomDrawer = props => {
           }}
           onPress={() => logOut()}
         >
-          Çıkış Yap
+          Çıkış Yap 
         </Button>
 
       </View>

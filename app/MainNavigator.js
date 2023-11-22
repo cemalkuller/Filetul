@@ -16,7 +16,7 @@ const StackNavigator = () => {
 
     </Stack.Navigator>
   );
-};
+}; 
 
 const MainNavigator = () => {
   const { isLoggedIn } = useLogin();
