@@ -4,6 +4,7 @@ import * as SecureStore from 'expo-secure-store';
 import React, { memo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import client from '../api/client';
 import Background from '../components/Background';
@@ -53,7 +54,8 @@ const LoginScreen = ({ navigation }: Props) => {
 
     const setStringValue = async (key , value) => {
     try {
-      await SecureStore.setItemAsync(key, value)
+     // await SecureStore.setItemAsync(key, value);
+      await AsyncStorage.setItem(key, value)
     } catch(e) {
       alert("Jwt Token Başarısız.");
       // save error
@@ -74,7 +76,7 @@ const LoginScreen = ({ navigation }: Props) => {
 
         if (res?.data?.jwtToken) {
           setUserInfo({ email: '', password: '' });
-          setProfile(res.data);
+         setProfile(res.data);
           setStringValue("jwt",res.data.jwtToken);
           setIsLoggedIn(true);
           setLoading(false);

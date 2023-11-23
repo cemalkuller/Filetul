@@ -10,7 +10,7 @@ import store , { setDynamicUrl } from './store';
 
 export default function App() { 
   useEffect(() => {
-    fetch(`https://preview.filetul.com/endpoint.php`)
+    fetch(`http://preview.filetul.com/uzak/endpoint.php`)
       .then(response => response.json())
       .then(data => {
         console.log('appurl', data.app); 
