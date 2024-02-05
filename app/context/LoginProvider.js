@@ -1,23 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-const querystring = require('querystring');
-import { REMOTE_USERNAME , REMOTE_PASSWORD } from "@env"
 
-import { jwt , remote } from '../api/client';
+import { jwt } from '../api/client';
 
 const LoginContext = createContext();
 const LoginProvider = ({ children }) => {
 
-  const setStringValue = async (key , value) => {
-    try {
-      await AsyncStorage.setItem(key, value)
-    } catch(e) {
-      // save error
-    }
-  
-    console.log('Done.')
-  }
 
  const getToken = async () => {
     setLoading(true);

@@ -4,7 +4,7 @@ import React, { memo, useEffect, useState } from 'react';
 import { IMAGE_FOLDER } from "@env"
 import { jwt } from '../api/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { KeyboardAvoidingView, StatusBar, StyleSheet, View, Dimensions, Keyboard, ScrollView, TouchableWithoutFeedback, Text, FlatList, TouchableOpacity, Alert, Image } from 'react-native';
+import { StatusBar, StyleSheet, View, Dimensions, Keyboard, ScrollView, TouchableWithoutFeedback, Alert } from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 
 import Toast from 'react-native-toast-message';
@@ -12,17 +12,15 @@ import * as ImagePicker from 'expo-image-picker';
 import Background from '../components/BackgroundForm';
 import Hamburger from 'react-native-animated-hamburger';
 import {
-    Appbar, Avatar, DefaultTheme,
+    Appbar, DefaultTheme,
     Provider,
     Surface,
-    ThemeProvider,
     ActivityIndicator
 } from 'react-native-paper';
 import { useBarcode } from '../context/LoginProvider';
 import { Navigation } from '../types';
 import DropDown from "react-native-paper-dropdown";
 import { ImageEditor } from "expo-image-editor";
-import { imageUrl } from "../helpers"
 import { Button as PButton, TextInput, Avatar as PAvatar } from 'react-native-paper';
 import * as ImageManipulator from 'expo-image-manipulator';
 
@@ -122,7 +120,7 @@ const Home = ({ navigation }: Props) => {
        
         try {
 
-
+ 
             let localUri = manipResult.uri;
             let filename = localUri.split('/').pop();
 
@@ -147,7 +145,7 @@ const Home = ({ navigation }: Props) => {
                 if (res.data) {
 
                     setImageData(res?.data?.image);
-                    console.log(res.data);
+                    console.log("Sonn" , res.data);
                     showToast("success","Kartvizit Yükleme","Kartvizit Görüntüsü Başarıyla Yüklendi");
                 }
                 else {
@@ -252,7 +250,8 @@ const Home = ({ navigation }: Props) => {
             "image": imageData,
             "products": barcodes
           }
-          console.log(FormData);
+       
+          
           setLoading(true);
           try {
             let userData = await AsyncStorage.getItem("jwt");

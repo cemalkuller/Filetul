@@ -1,4 +1,4 @@
-rootProject.name = 'FiletlBarkodSorgulama'
+rootProject.name = 'Filetül Barkod Sorgulama'
 
 apply from: new File(["node", "--print", "require.resolve('expo/package.json')"].execute(null, rootDir).text.trim(), "../scripts/autolinking.gradle");
 useExpoModules()

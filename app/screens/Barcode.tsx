@@ -152,11 +152,11 @@ const Barcode = ({ navigation }: Props) => {
       try {
         if (userData) {
 
-          const res = await jwt(userData).post('product/barcode', { barcode: barcode });
+          const res = await jwt(userData).post('barcode', { barcode: barcode });
 
           setLoading(false);
           setScanned(false);
-
+      
           if (res?.data?.success) {
         
             setselectedBarkod(res?.data?.data);
@@ -168,7 +168,7 @@ const Barcode = ({ navigation }: Props) => {
         }
       } catch (error) {
 
-        console.log(error.response.data);
+        console.log("Hata" , error.response);
 
 
       }
@@ -188,6 +188,7 @@ const Barcode = ({ navigation }: Props) => {
 
   const setscanBarkod = async (barcod) => {
 
+    
     setScanned(false);
 
     if (barcod?.barcode) {
@@ -212,7 +213,7 @@ const Barcode = ({ navigation }: Props) => {
     if(kelime)
     {
       const kel = kelime.replace("195.175.208.222:3491","filetul.ngrok.app");
-      console.log(kel);
+  
     return kel;
    
     }

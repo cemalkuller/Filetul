@@ -1,11 +1,10 @@
 import { API_URL } from "@env"
 import { useDrawerStatus } from '@react-navigation/drawer';
-import { DrawerActions } from '@react-navigation/native'
 import React, { memo, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View, FlatList } from 'react-native';
 import ActionSheet, { SheetManager } from "react-native-actions-sheet";
 import Hamburger from 'react-native-animated-hamburger';
-import { Appbar, Avatar, Button, FAB, List, Modal, Portal, Provider, Searchbar, DataTable, IconButton, DefaultTheme  } from 'react-native-paper';
+import { Appbar, Avatar, Button, FAB, Modal, Portal, Provider, Searchbar, IconButton } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLogin } from '../context/LoginProvider';
 import { useBarcode } from '../context/LoginProvider';
@@ -13,7 +12,6 @@ import { Navigation } from '../types';
 import { jwt } from '../api/client';
 import Toast from 'react-native-toast-message';
 import { Keyboard } from 'react-native'
-import Background from "./Background";
 
 type Props = {
   navigation: Navigation;
@@ -21,14 +19,13 @@ type Props = {
 const Sheets = {
   testSheet: 'test_sheet_id',
 };
-const colors = ['#4a4e4d', '#0e9aa7', '#3da4ab', '#f6cd61', '#fe8a71'];
 const optionsPerPage = [2, 3, 4];
 
 const Home = ({ navigation }: Props) => {
 
   const isDrawerVisible = useDrawerStatus();
   const [visible, setVisible] = React.useState(false);
-  const { profile, logOut } = useLogin();
+  const { profile } = useLogin();
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
   const containerStyle = { width: '80%', marginLeft: '10%', backgroundColor: 'rgba(255,255,255,0)', padding: 20, TouchableOpacity: 0 };
@@ -41,26 +38,40 @@ const Home = ({ navigation }: Props) => {
 
   const [sendingData, setSendingData] = useState([]);
 
-  const from = page * itemsPerPage;
-  const to = Math.min((page + 1) * itemsPerPage, sendingData?.length);
 
   const DATA = [
     {
       id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-      title: 'Barkod Tara',
-      color: '#9368A6',
-      onpress : "Barcode",
-      icon : 'barcode',
-      fontColor : '#ffffff'
+      title: 'Filetül',
+      color: '#761532',
+      onpress: "Barcode",
+      icon: 'barcode',
+      fontColor: '#ffffff'
     },
     {
-      id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-      title: 'Kumaş Ara',
-      color :  '#0e9aa7',
-      onpress : "SearchImage",
-      icon : 'magnify',
-      fontColor : '#ffffff' 
+      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28bas',
+      title: 'Redpep',
+      color: '#CD0000',
+      onpress: "Barcode",
+      icon: 'barcode',
+      fontColor: '#ffffff'
     },
+    {
+      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28bas',
+      title: 'Keyos',
+      color: '#ff5a2a',
+      onpress: "Barcode",
+      icon: 'barcode',
+      fontColor: '#ffffff'
+    },
+    {
+      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28bas',
+      title: 'Sateks',
+      color: '#000',
+      onpress: "Barcode",
+      icon: 'barcode',
+      fontColor: '#ffffff'
+    }
   ];
 
 
@@ -71,10 +82,6 @@ const Home = ({ navigation }: Props) => {
 
   }, [itemsPerPage]);
 
-
-
-
-
   useEffect(() => {
     if (isDrawerVisible) {
       setContentVisible(false);
@@ -83,35 +90,6 @@ const Home = ({ navigation }: Props) => {
     }
     setState({ open: false })
   }, [isDrawerVisible]);
-
-  const _renderItem = ({ item }) => {
-
-    return (
-
-      <DataTable.Row  key={item?.id}>
-        <DataTable.Cell style={{ flex: 2 }}>
-
-          <Text>{item?.fullname}</Text>
-
-
-        </DataTable.Cell>
-        <DataTable.Cell style={{ flex: 2 }}>
-          {item?.fair}
-        </DataTable.Cell>
-        <DataTable.Cell numeric>{item?.qty}</DataTable.Cell>
-        <DataTable.Cell numeric>
-          <IconButton icon="arrow-right-bold-circle"
-            size={28}
-            color={DefaultTheme.colors.primary}
-
-            onPress={() => console.log('Pressed')} />
-        </DataTable.Cell>
-
-
-      </DataTable.Row>
-    );
-  }
-
 
   const _goBack = () => navigation.toggleDrawer();
 
@@ -124,13 +102,10 @@ const Home = ({ navigation }: Props) => {
 
   }
 
-  const _handleMore = () => console.log('Shown more');
 
   const [state, setState] = React.useState({ open: false });
 
-  const onStateChange = ({ open }) => setState({ open });
 
-  const onItemsPerPageChange = () => { console.log("test") };
 
 
   const showToast = (type = null, title = null, description = null, position = null) => {
@@ -221,35 +196,35 @@ const Home = ({ navigation }: Props) => {
       <View style={styles.container}>
         <Provider>
           <Portal>
-          <FlatList
-             data={DATA}
-            numColumns={2}
-            renderItem={({item}) => (
-              <TouchableOpacity   onPress={() => navigation.navigate(item.onpress)} style={{ 
-                flex: 1,
-                height: 150,
-                 margin: 10,
-                borderRadius : 10,
-                alignItems : 'center',
-                justifyContent : 'center',
-                backgroundColor : item.color,
+            <FlatList
+              data={DATA}
+              numColumns={2}
+              renderItem={({ item }) => (
+                <TouchableOpacity onPress={() => navigation.navigate(item.onpress)} style={{
+                  flex: 1,
+                  height: 150,
+                  margin: 10,
+                  borderRadius: 10,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: item.color,
 
-              }}>
-             
-              <IconButton
-                icon={item.icon}
-                size={30}
-                color={item.fontColor}
-              />
-                <Text style={{color : item.fontColor , fontSize : 18}}>{item.title}</Text>
-             
-              </TouchableOpacity>
-            )}
-          />
+                }}>
+
+                  <IconButton
+                    icon={item.icon}
+                    size={30}
+                    color={item.fontColor}
+                  />
+                  <Text style={{ color: item.fontColor, fontSize: 18 }}>{item.title}</Text>
+
+                </TouchableOpacity>
+              )}
+            />
 
 
-            <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle}>
-            </Modal>
+            <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle} />
+   
 
             <FAB
               icon="barcode"
