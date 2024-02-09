@@ -55,6 +55,7 @@ const LoginProvider = ({ children }) => {
 
   const logOut = async () => {
     AsyncStorage.removeItem("jwt");
+    AsyncStorage.removeItem("company");
     setProfile({});
     setIsLoggedIn(false);
   }

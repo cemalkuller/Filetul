@@ -17,7 +17,7 @@ import {
   Text,
   Provider,
 } from 'react-native-paper';
-import Hamburger from 'react-native-animated-hamburger';
+import Hamburger from 'tavukburger';
 import { FAB } from 'react-native-paper';
 import ActionSheet from "react-native-actions-sheet";
 import Toast from 'react-native-toast-message';

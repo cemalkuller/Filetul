@@ -3,8 +3,8 @@ import { useDrawerStatus } from '@react-navigation/drawer';
 import React, { memo, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View, FlatList } from 'react-native';
 import ActionSheet, { SheetManager } from "react-native-actions-sheet";
-import Hamburger from 'react-native-animated-hamburger';
-import { Appbar, Avatar, Button, FAB, Modal, Portal, Provider, Searchbar, IconButton } from 'react-native-paper';
+import Hamburger from 'tavukburger';
+import { Appbar, Avatar, Button, FAB, Modal, Portal, Provider, Searchbar, IconButton, Card, Title, Paragraph, Snackbar } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLogin } from '../context/LoginProvider';
 import { useBarcode } from '../context/LoginProvider';
@@ -13,14 +13,13 @@ import { jwt } from '../api/client';
 import Toast from 'react-native-toast-message';
 import { Keyboard } from 'react-native'
 
+
 type Props = {
   navigation: Navigation;
 };
 const Sheets = {
   testSheet: 'test_sheet_id',
 };
-const optionsPerPage = [2, 3, 4];
-
 const Home = ({ navigation }: Props) => {
 
   const isDrawerVisible = useDrawerStatus();
@@ -30,18 +29,17 @@ const Home = ({ navigation }: Props) => {
   const hideModal = () => setVisible(false);
   const containerStyle = { width: '80%', marginLeft: '10%', backgroundColor: 'rgba(255,255,255,0)', padding: 20, TouchableOpacity: 0 };
   const [contentVisible, setContentVisible] = useState(false);
-  const { barcode, SetBarcode } = useBarcode();
+  const { barcode, SetBarcode, SetBarcodes } = useBarcode();
 
 
-  const [page, setPage] = React.useState(0);
-  const [itemsPerPage, setItemsPerPage] = React.useState(optionsPerPage[0]);
-
-  const [sendingData, setSendingData] = useState([]);
+  const [visibleSnac, setvisibleSnac] = useState(false);
+  const onDismissSnackBar = () => setvisibleSnac(false);
 
 
+  const [company, setCompany] = React.useState(null);
   const DATA = [
     {
-      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
+      id: '1',
       title: 'Filetül',
       color: '#761532',
       onpress: "Barcode",
@@ -49,7 +47,7 @@ const Home = ({ navigation }: Props) => {
       fontColor: '#ffffff'
     },
     {
-      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28bas',
+      id: '2',
       title: 'Redpep',
       color: '#CD0000',
       onpress: "Barcode",
@@ -57,30 +55,14 @@ const Home = ({ navigation }: Props) => {
       fontColor: '#ffffff'
     },
     {
-      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28bas',
+      id: '3',
       title: 'Keyos',
       color: '#ff5a2a',
       onpress: "Barcode",
       icon: 'barcode',
       fontColor: '#ffffff'
-    },
-    {
-      id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28bas',
-      title: 'Sateks',
-      color: '#000',
-      onpress: "Barcode",
-      icon: 'barcode',
-      fontColor: '#ffffff'
     }
   ];
-
-
-
-
-  React.useEffect(() => {
-    setPage(0);
-
-  }, [itemsPerPage]);
 
   useEffect(() => {
     if (isDrawerVisible) {
@@ -90,6 +72,27 @@ const Home = ({ navigation }: Props) => {
     }
     setState({ open: false })
   }, [isDrawerVisible]);
+
+
+  useEffect(() => {
+    getCompany();
+  }, [profile]);
+
+
+  const getCompany = async () => {
+    let CompanyData = await AsyncStorage.getItem("company");
+    try {
+      const decodedObject = JSON.parse(CompanyData);
+      setCompany(decodedObject);
+
+
+      console.log(decodedObject);
+      //  setCompany(CompanyData);
+    } catch (error) {
+
+    }
+
+  }
 
   const _goBack = () => navigation.toggleDrawer();
 
@@ -105,8 +108,30 @@ const Home = ({ navigation }: Props) => {
 
   const [state, setState] = React.useState({ open: false });
 
+  const setStringValue = async (key, value) => {
+    try {
+
+      const stringValue = JSON.stringify(value);
+      console.log(stringValue);
+      await AsyncStorage.setItem(key, stringValue)
+    } catch (e) {
+
+    }
+
+  }
 
 
+
+  const SecCompany = (e) => {
+
+    if (e.id != company?.id) {
+      SetBarcode("");
+      SetBarcodes([]);
+      setCompany(e);
+      setStringValue("company", e);
+    }
+
+  }
 
   const showToast = (type = null, title = null, description = null, position = null) => {
     Toast.show({
@@ -156,28 +181,60 @@ const Home = ({ navigation }: Props) => {
 
   };
 
-  const { open } = state;
+
   const actionSheetRef = useRef<ActionSheet>(null);
+
+  const gitNav = () => {
+    if (!company?.id) {
+      setvisibleSnac(true);
+      console.log("yok");
+    }
+    else {
+      navigation.navigate('Barcode');
+    }
+
+  }
 
   return (
     <>
-      <Appbar.Header>
-        <TouchableOpacity onPress={_goBack}>
-          <Avatar.Image
-            style={{ marginLeft: 10 }}
-            size={40}
-            source={!profile?.avatar?.url ? require('../assets/man.png') : { uri: `${API_URL}${profile?.avatar?.url}` }}
+      <View style={{
+        width: '100%',
 
-          />
-        </TouchableOpacity>
-        <Appbar.Content title="Filetül" subtitle="Barkod Uygulaması" />
-        <Appbar.Action icon="magnify" onPress={showModal} />
+        justifyContent: 'flex-start',
+        borderRadius: 20,
+        paddingBottom: 100,
+        backgroundColor: '#000000',
+        shadowOpacity: 0.5,
+        shadowRadius: 5,
+        elevation: 5
 
-        <Hamburger type="cross" color={"#fff"} active={contentVisible} onPress={_goBack}
-          underlayColor="transparent"
-        >
-        </Hamburger>
-      </Appbar.Header>
+      }}>
+        <Appbar.Header style={styles.appBar}>
+          <Hamburger type="cross" color={"#fff"} active={contentVisible} onPress={_goBack}
+            underlayColor="transparent"
+          >
+          </Hamburger>
+
+
+          <Appbar.Content style={{ alignItems: 'flex-start', }} subtitleStyle={{ fontSize: 18 }} title={"Merhaba"} subtitle={profile?.title} color="#ffffff" />
+
+          <TouchableOpacity onPress={_goBack} >
+
+
+            <Avatar.Image
+              style={{ marginLeft: 10 }}
+              size={40}
+              source={!profile?.avatar?.url ? require('../assets/man.png') : { uri: `${API_URL}${profile?.avatar?.url}` }}
+
+            />
+          </TouchableOpacity>
+        </Appbar.Header>
+        <View style={styles.searchBar}>
+          <Text style={{ color: "#ffffff", fontSize: 30, marginTop: 15 }}>Hangi Firmada İşlem Yapacaksınız?</Text>
+
+        </View>
+
+      </View>
       {visible ?
         <>
           <Searchbar
@@ -193,104 +250,130 @@ const Home = ({ navigation }: Props) => {
         </>
         : <></>
       }
-      <View style={styles.container}>
-        <Provider>
-          <Portal>
-            <FlatList
-              data={DATA}
-              numColumns={2}
-              renderItem={({ item }) => (
-                <TouchableOpacity onPress={() => navigation.navigate(item.onpress)} style={{
-                  flex: 1,
-                  height: 150,
-                  margin: 10,
-                  borderRadius: 10,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: item.color,
 
-                }}>
+      <View style={styles.container1}>
+        <View style={styles.container}>
+          <Provider>
+            <Portal>
+              <FlatList
+                data={DATA}
+                numColumns={1}
+                renderItem={({ item }) => (
+                  <TouchableOpacity key={"Key" + item.id} onPress={() => SecCompany(item)}
+                  //onPress={() => navigation.navigate(item.onpress)}
 
-                  <IconButton
-                    icon={item.icon}
-                    size={30}
-                    color={item.fontColor}
-                  />
-                  <Text style={{ color: item.fontColor, fontSize: 18 }}>{item.title}</Text>
-
-                </TouchableOpacity>
-              )}
-            />
+                  >
 
 
-            <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle} />
-   
+                    <Card style={company?.id == item.id ? styles.active : styles.normal}  >
+                      <Card.Content  >
+                        <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} >
+                          <View >
+                            <Title style={company?.id == item.id ? styles.activetext : styles.normaltext}>{item.title}</Title>
+                            {company?.id != item.id && <Paragraph>Firma Değiştirmek İçin Tıklayınız.</Paragraph>}
+                          </View>
 
-            <FAB
-              icon="barcode"
-              style={styles.fab}
-              onPress={() => navigation.navigate('Barcode')}
-              color="#ffffff"
-            />
+                          {company?.id == item.id &&
+                            <View style={{ backgroundColor: "#000000", borderRadius: 50 }} >
+                              <IconButton icon="check-bold"
 
+                                color={"#ffffff"}
+                                size={20} onPress={() => _handleSearch(barcode)} />
+                            </View>
+                          }
+                        </View>
+                      </Card.Content>
 
-          </Portal>
-        </Provider>
-        <ActionSheet
-          initialOffsetFromBottom={0.4}
-          onBeforeShow={data => console.log(data)}
-          id={Sheets.testSheet}
-          statusBarTranslucent
-          bounceOnOpen={true}
-          drawUnderStatusBar={true}
-          bounciness={4}
-          gestureEnabled={true}
-          keyboardDismissMode='interactive'
-          keyboardHandlerEnabled={false}
-          defaultOverlayOpacity={0.3}>
-          <View
-            style={{
-              paddingHorizontal: 12,
-            }}>
-
-            <ScrollView
-              nestedScrollEnabled
-              onMomentumScrollEnd={() => {
-                actionSheetRef.current?.handleChildScrollEnd();
-              }}
-              style={styles.scrollview}>
-              <Text style={{ fontSize: 20, marginBottom: 20 }} >Sorgulanan Barkod</Text>
-
-              <Text style={{ fontSize: 20, marginBottom: 20 }} > {barcode}</Text>
-
-              <View>
-
-                <TouchableOpacity
-                  onPress={() => {
-                    SheetManager.hide(Sheets.testSheet, null);
-                  }}
-                  style={styles.listItem}>
+                    </Card>
 
 
-                </TouchableOpacity>
+                  </TouchableOpacity>
+                )}
+              />
 
-              </View>
 
-              {/*  Add a Small Footer at Bottom */}
-              <View style={styles.footer} />
-            </ScrollView>
-          </View>
-        </ActionSheet>
+
+
+
+
+            </Portal>
+          </Provider>
+
+        </View>
+        <Button icon="arrow-right" mode="contained" style={{ height: 60, outerHeight: 60, innerHeight: 60, }} contentStyle={{ flexDirection: 'row-reverse', borderRadius: 15, height: 60, backgroundColor: '#000000', }} color="transparent" labelStyle={{ fontWeight: "800", lineHeight: 30, color: '#ffffff' }} onPress={() => { gitNav() }}>
+          Devam Et
+        </Button>
+
+
       </View>
+      <Snackbar
+        visible={visibleSnac}
+        onDismiss={onDismissSnackBar}
+        action={{
+          label: 'Tamam',
+          onPress: () => {
+            // Do something
+          },
+        }}>
+        Barkod Sorgulamak İçin Firma Seçiniz.
+      </Snackbar>
     </>
   );
 };
 
 const styles = StyleSheet.create({
+  container1: {
+    position: 'absolute',
+    width: '100%', // Yatayda %100 genişlik
+    height: '60%', // Dikeyde içeriğe göre boyutlanacak
+    top: 200,
+    zIndex: 9999,
+    padding: 30
+
+  },
+  active:
+  {
+    flex: 1,
+
+    margin: 10,
+    borderRadius: 10,
+    window: '100%',
+    backgroundColor: "#ffc200"
+
+  },
+  normaltext:
+  {
+    color: "#000000"
+  },
+
+  activetext:
+  {
+    color: "#000000"
+
+  },
+  normal:
+  {
+    flex: 1,
+    margin: 10,
+    borderRadius: 10,
+    window: '100%'
+  },
+
+  searchBar: {
+    flexDirection: 'row', // Yatayda sıralama
+    alignItems: 'center', // Dikeyde hizalama
+    paddingHorizontal: 16, // Yatayda iç boşluk
+    width: '90%', // Yatayda %100 genişlik
+    padding: 20,
+    paddingTop: 10,
+    marginLeft: '5%',
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#eee',
+    borderRadius: 15
   },
   scrollview: {
     width: '100%',
@@ -312,7 +395,20 @@ const styles = StyleSheet.create({
     bottom: 35,
     backgroundColor: "#6200ee"
   },
+  appBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+
+    padding: 15,
+    backgroundColor: 'transparent', // Arka plan rengi
+    elevation: 0,
+
+
+  },
+
 });
+
 
 
 export default memo(Home);

@@ -17,6 +17,7 @@ const BasketButton = ({ action , value }: Props) => (
      icon={"basket"}  
      color={theme.colors.mor}
      animated={true}
+     
     size={40} 
     />
     
@@ -68,7 +69,7 @@ const styles = StyleSheet.create({
     minHeight  : 15 ,
     fontSize : 10,
     fontWeight : '900',
-    color : '#fff'
+    color : '#000000'
    
   }
 });

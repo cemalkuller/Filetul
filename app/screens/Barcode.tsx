@@ -6,6 +6,7 @@ import ActionSheet, { SheetManager } from "react-native-actions-sheet";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 import { ActivityIndicator, Button as PButton, List, Avatar, Appbar, Divider, Searchbar, Button, Surface } from 'react-native-paper';
+import { useFocusEffect } from '@react-navigation/native';
 import BackButtonCam from '../components/BackButtonCam';
 import FlashButton from '../components/FlashButton';
 import SearchButton from '../components/SearchButton';
@@ -37,6 +38,7 @@ const Barcode = ({ navigation }: Props) => {
   const [accessToken, setAccessToken] = useState("");
   const actionSheetRef = useRef<ActionSheet>(null);
   const BarcodeactionSheetRef = useRef<ActionSheet>(null);
+  const [company, setCompany] = React.useState(null);
 
   const isFocused = useIsFocused();
 
@@ -52,15 +54,44 @@ const Barcode = ({ navigation }: Props) => {
   const getAToken = async () => {
     let userData = await AsyncStorage.getItem("access_token");
     try {
-  
+
       setAccessToken(userData);
     } catch (error) {
       // An error occurred!
     }
+  }
+  const setStringValue = async (key, value) => {
+    try {
 
+      const stringValue = JSON.stringify(value);
+      console.log(stringValue);
+      await AsyncStorage.setItem(key, stringValue)
+    } catch (e) {
+
+    }
+
+  }
+  const SecCompany = (e) => {
+
+    setCompany(e);
+    setStringValue("company", e);
   }
 
 
+  const getCompany = async () => {
+    let CompanyData = await AsyncStorage.getItem("company");
+ 
+    try {
+
+      const decodedObject = JSON.parse(CompanyData);
+      setCompany(decodedObject);
+      console.log("Bu2" ,decodedObject);
+      //  setCompany(CompanyData);
+    } catch (error) {
+
+    }
+
+  }
   const handleRemoveItem = (idx, productname) => {
 
     const temp = [...barcodes];
@@ -108,7 +139,7 @@ const Barcode = ({ navigation }: Props) => {
 
   async function playSound() {
 
- 
+
 
 
   }
@@ -118,10 +149,19 @@ const Barcode = ({ navigation }: Props) => {
 
   }
 
+  useFocusEffect(
+    React.useCallback(() => {
+      getCompany();
+      return () => {
+        // Your cleanup code when the screen is unfocused
+      };
+    }, [])
+  );
+
 
   useEffect(() => {
 
-   
+    
     getAToken();
     (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
@@ -152,23 +192,31 @@ const Barcode = ({ navigation }: Props) => {
       try {
         if (userData) {
 
-          const res = await jwt(userData).post('barcode', { barcode: barcode });
+          const res = await jwt(userData).post('barcode', { barcode: barcode  , company : company?.id});
 
           setLoading(false);
           setScanned(false);
-      
+
           if (res?.data?.success) {
-        
-            setselectedBarkod(res?.data?.data);
-            BarcodeactionSheetRef.current?.show();
+            if(res?.data?.data?.barcode)
+            {
+              setselectedBarkod(res?.data?.data);
+              BarcodeactionSheetRef.current?.show();
+            }
+           else 
+           {
+            showToast("error", barcode, "Aradığınız barkod bulunamadı", "top");
+           }
           }
           else {
             showToast("error", barcode, res?.data?.message, "top");
           }
         }
       } catch (error) {
-
-        console.log("Hata" , error.response);
+        setLoading(false);
+        setScanned(false);
+        showToast("error", barcode, "Hata Oluştu", "top");
+        console.log("Hata", error.response);
 
 
       }
@@ -179,7 +227,7 @@ const Barcode = ({ navigation }: Props) => {
       console.log(error.response.data);
       setLoading(false);
       setScanned(false);
-
+      showToast("error", barcode, "Hata Oluştu", "top");
 
     }
 
@@ -188,7 +236,7 @@ const Barcode = ({ navigation }: Props) => {
 
   const setscanBarkod = async (barcod) => {
 
-    
+
     setScanned(false);
 
     if (barcod?.barcode) {
@@ -209,17 +257,15 @@ const Barcode = ({ navigation }: Props) => {
 
   }
 
-  const degistir = (kelime : any) =>{
-    if(kelime)
-    {
-      const kel = kelime.replace("195.175.208.222:3491","filetul.ngrok.app");
-  
-    return kel;
-   
+  const degistir = (kelime: any) => {
+    if (kelime) {
+      const kel = kelime.replace("195.175.208.222:3491", "filetul.ngrok.app");
+
+      return kel;
+
     }
-    else 
-    {
-      return null 
+    else {
+      return null
     }
   }
 
@@ -321,7 +367,7 @@ const Barcode = ({ navigation }: Props) => {
               onChangeText={query => { SetBarcode(query); console.log("Barcode", query) }}
               value={barcode}
               searchAccessibilityLabel="test"
-              keyboardType={'numeric'}
+              keyboardType={company?.id == 3 ? 'default' : 'numeric'}
               style={{ textAlign: 'center' }}
               inputStyle={{ textAlign: 'center' }}
               onBlur={query => { console.log("Barcode", query) }}
@@ -336,7 +382,8 @@ const Barcode = ({ navigation }: Props) => {
           </View>
 
         }
-        {barcodes?.length ? <PButton style={styles.aButton} icon="arrow-right" mode="contained" onPress={() => navigation.navigate('Form')}> Devam Et</PButton> : <></>}
+        <Text style={{color : "#ffffff" , zIndex : 99 , position : "absolute", bottom : 200 , fontSize : 20}} >Seçilen Firma : {company?.title}</Text>
+        {barcodes?.length ? <PButton style={styles.aButton} contentStyle={{flexDirection: 'row-reverse'}} icon="arrow-right" mode="contained" onPress={() => navigation.navigate('Form')}> Devam Et</PButton> : <></>}
 
         {loading && <ActivityIndicator
           animating={true}
